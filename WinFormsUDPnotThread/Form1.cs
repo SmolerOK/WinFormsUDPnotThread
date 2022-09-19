@@ -11,13 +11,10 @@ namespace WinFormsUDPnotThread
         private byte[] dataOpenDoor0 = { 0x02, 0x1F, 0x00, 0x03, 0x61, 0x38 };
         private byte[] dataOpenDoor1 = { 0x02, 0x1F, 0x01, 0x03, 0xB9, 0x21 };
         private UdpClient client;
-        private Ping ping;
-        private PingReply pingReply;
 
         public Form1()
         {
             InitializeComponent();
-            client = new UdpClient();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -34,17 +31,15 @@ namespace WinFormsUDPnotThread
         {
             try
             {
-                ping = new Ping();
                 IPAddress address = IPAddress.Parse(textBox1.Text);
-                pingReply = ping.Send(address);
-                client.Connect(address, 8192);
 
+                client = new UdpClient();
+                client.Client.ReceiveTimeout = 1000;
+                client.Client.SendTimeout = 1000;
+                client.Connect(address, 8192);
                 client.Send(dataOpenDoor0, dataOpenDoor0.Length);
 
                 IPEndPoint iPEndPoint = new IPEndPoint(address, 8192);
-
-                if (pingReply.Status != IPStatus.Success)
-                    throw new Exception("IP не найден!");
 
                 byte[] receiveByte = client.Receive(ref iPEndPoint);
 
